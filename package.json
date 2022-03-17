@@ -1,0 +1,25 @@
+{
+  "name": "web-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sumanthyedoti/node-web-server.git"
+  },
+  "keywords": [
+    "web-server",
+    "server",
+    "node-server",
+    "node-web-server"
+  ],
+  "author": "Sumanth Yedoti",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sumanthyedoti/node-web-server/issues"
+  },
+  "homepage": "https://github.com/sumanthyedoti/node-web-server#readme"
+}

@@ -42,6 +42,11 @@ function getHeaders(headers) {
     ...headers,
   }
 }
+function image() {
+  const i = fs.readFileSync(path.resolve( __dirname, "./public/ketchup.png" ))
+  console.log(i);
+}
+// image()
 
 let getStatusLine = ({ code: statusCode, message, httpv = "HTTP/1.1" }) =>
   `${httpv} ${statusCode} ${message}\r\n`
@@ -56,18 +61,19 @@ function getHeadersResponse(headers) {
 
 function sendResponce(socket, request) {
   const fileName = public(request.uri.slice(1))
-  console.log("fileName ", fileName)
   if (!fs.existsSync(fileName)) {
-    sendResponce(socket, status.notFound)
+    socket.write(getStatusLine(status.notFound))
     socket.end()
+    return false
   }
   const fileExtention = fileName.split(".").slice(-1)[0]
   let headers = getHeaders({
     "Content-Type": mime.getType(fileExtention),
   })
   socket.write(getStatusLine(status) + getHeadersResponse(headers))
-  socket.write("Home page")
-  // socket.end()
+  const fileContent = fs.readFileSync(fileName, "utf8")
+  socket.write(fileContent)
+  socket.end()
 }
 
 module.exports = {

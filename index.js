@@ -1,27 +1,14 @@
 const net = require("net")
+
+const { parserRequest } = require("./request")
+const { sendResponce } = require("./response")
+
 const port = 3030
 
-const parrotFace = "(*)c;"
-const endPhrase = "shut up"
-const intro = `${parrotFace} Hello, I can talk, I can talk, I can talk. I don't 'shut up' unless you tell me so!\n\n`
-
 const server = net.createServer((socket) => {
-  socket.write(intro)
-
   socket.on("data", (data) => {
-    const recieved = data.toString()
-    if (endPhrase === recieved.slice(0, endPhrase.length).toLowerCase()) {
-      setTimeout(() => {
-        socket.write(`${parrotFace} ...\n`)
-      }, 300)
-      setTimeout(() => {
-        socket.end()
-      }, 1400)
-    } else {
-      setTimeout(() => {
-        socket.write(`${parrotFace} ${data}\n`)
-      }, 500)
-    }
+    const request = parserRequest(data)
+    sendResponce(socket, request)
   })
 })
 

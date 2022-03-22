@@ -1,4 +1,6 @@
 const fs = require("fs")
+var url = require("url")
+const status = require("./status")
 const path = require("path")
 const mime = require("mime")
 
@@ -7,73 +9,56 @@ const staticFiles = (dirName) => (fileName) =>
 
 const public = staticFiles("public")
 
-const status = Object.freeze({
-  ok: {
-    code: 200,
-    message: "OK",
-  },
-  created: {
-    code: 201,
-    message: "CREATED",
-  },
-  noContent: {
-    code: 204,
-    message: "NO CONTENT",
-  },
-  badRequest: {
-    code: 400,
-    message: "BAD REQUEST",
-  },
-  forbidden: {
-    code: 403,
-    message: "FORBIDDEN",
-  },
-  notFound: {
-    code: 404,
-    message: "NOT FOUND",
-  },
-})
-
 function getHeaders(headers) {
   return {
     Server: "nws",
     Date: new Date().toString().slice(0, 28),
-    // "Transfer-Encoding": "chunked",
     ...headers,
   }
 }
-function image() {
-  const i = fs.readFileSync(path.resolve( __dirname, "./public/ketchup.png" ))
-  console.log(i);
-}
-// image()
 
 let getStatusLine = ({ code: statusCode, message, httpv = "HTTP/1.1" }) =>
   `${httpv} ${statusCode} ${message}\r\n`
 
-function getHeadersResponse(headers) {
-  const headersResponse = Object.keys(headers).reduce(
-    (acc, key) => acc + `${key}: ${headers[key]}\r\n`,
-    ""
-  )
-  return headersResponse + "\r\n"
+function getHead(status, headers) {
+  function getHeadersResponse(headers) {
+    const headersResponse = Object.keys(headers).reduce(
+      (acc, key) => acc + `${key}: ${headers[key]}\r\n`,
+      ""
+    )
+    return headersResponse + "\r\n"
+  }
+  const allHeaders = getHeaders(headers)
+  return getStatusLine(status) + getHeadersResponse(allHeaders)
 }
 
 function sendResponce(socket, request) {
-  const fileName = public(request.uri.slice(1))
+  const fileName = public(request.pathname.slice(1))
   if (!fs.existsSync(fileName)) {
-    socket.write(getStatusLine(status.notFound))
-    socket.end()
+    socket.end(getStatusLine(status.notFound))
     return false
   }
   const fileExtention = fileName.split(".").slice(-1)[0]
-  let headers = getHeaders({
-    "Content-Type": mime.getType(fileExtention),
+  fs.stat(fileName, (err, stats) => {
+    if (err) {
+      console.error(err)
+    } else {
+      let headers = getHeaders({
+        "Content-Type": mime.getType(fileExtention),
+        "Content-Length": stats.size,
+      })
+      socket.write(getHead(status, headers))
+      const fileReadStream = fs.createReadStream(fileName)
+      fileReadStream.pipe(socket).on("end", () => {
+        let isKeepAlive =
+          request.headers.connection &&
+          request.headers.connection == "keep-alive"
+            ? true
+            : false
+        isKeepAlive ? socket.end() : null
+      })
+    }
   })
-  socket.write(getStatusLine(status) + getHeadersResponse(headers))
-  const fileContent = fs.readFileSync(fileName, "utf8")
-  socket.write(fileContent)
-  socket.end()
 }
 
 module.exports = {

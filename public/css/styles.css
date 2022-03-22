@@ -1,48 +1,12 @@
-*,
-*:before,
-*:after {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  margin: 0;
-}
-
-html {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
 body {
   color: tomato;
-  margin: 0;
 }
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p {
-  margin-bottom: 0.2em 0 0.4em;
-}
-h1 {
-  text-align: center;
-}
-
-button {
-  border: none;
-  padding: 0.4em 0.8em;
-  border-radius: 0.2em;
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
-  cursor: pointer;
-}
-
 .ketchup-bg {
   background-color: tomato;
 }
 .hide {
   display: none;
 }
-
 
 .container {
   text-align: center;
@@ -61,7 +25,6 @@ button.opener {
 .danger-note {
   padding-top: 1em;
 }
-
 
 .bottle {
   --width: 50px;

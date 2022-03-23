@@ -1,5 +1,4 @@
 const fs = require("fs")
-var url = require("url")
 const status = require("./status")
 const path = require("path")
 const mime = require("mime")
@@ -13,12 +12,20 @@ function getHeaders(headers) {
   return {
     Server: "nws",
     Date: new Date().toString().slice(0, 28),
+    "Accept-Ranges": "bytes",
     ...headers,
   }
 }
 
 let getStatusLine = ({ code: statusCode, message, httpv = "HTTP/1.1" }) =>
   `${httpv} ${statusCode} ${message}\r\n`
+let getRangeBytes = (range) => {
+  return range
+    .replace(/bytes=/, "")
+    .split("-")
+    .filter((r) => r !== "")
+    .map(parseInt)
+}
 
 function getHead(status, headers) {
   function getHeadersResponse(headers) {
@@ -43,20 +50,42 @@ function sendResponce(socket, request) {
     if (err) {
       console.error(err)
     } else {
-      let headers = getHeaders({
+      const isRange = !!request.headers.range
+      const [start, end = stats.size - 1] = isRange
+        ? getRangeBytes(request.headers.range)
+        : [0, stats.size - 1]
+      let headers = {}
+      headers = getHeaders({
         "Content-Type": mime.getType(fileExtention),
-        "Content-Length": stats.size,
+        "Content-Length": end - start + 1,
       })
-      socket.write(getHead(status, headers))
-      const fileReadStream = fs.createReadStream(fileName)
-      fileReadStream.pipe(socket).on("end", () => {
-        let isKeepAlive =
-          request.headers.connection &&
-          request.headers.connection == "keep-alive"
-            ? true
-            : false
-        isKeepAlive ? socket.end() : null
+      if (isRange) {
+        headers = getHeaders({
+          ...headers,
+          "Content-Range": `bytes ${start}-${end}/${stats.size}`,
+        })
+      }
+      socket.write(
+        getHead(isRange ? status.partialContent : status.ok, headers)
+      )
+      var fileReadStream = fs.createReadStream(fileName, {
+        start: start,
+        end: end,
       })
+      console.log(fileName, stats.size, end - start + 1)
+      fileReadStream
+        .pipe(socket)
+        .on("end", () => {
+          let isKeepAlive =
+            (conn = request.headers.connection) && conn == "keep-alive"
+              ? true
+              : false
+          isKeepAlive ? socket.end() : null
+        })
+        .on("error", function (err) {
+          console.log("error at file-read-stream\n", err)
+          socket.end()
+        })
     }
   })
 }

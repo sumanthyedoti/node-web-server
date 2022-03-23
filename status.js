@@ -1,27 +1,35 @@
 const status = Object.freeze({
   ok: {
     code: 200,
-    message: "OK",
+    message: "Ok",
   },
   created: {
     code: 201,
-    message: "CREATED",
+    message: "Created",
   },
   noContent: {
     code: 204,
-    message: "NO CONTENT",
+    message: "No Content",
+  },
+  partialContent: {
+    code: 206,
+    messsage: "Partial Content",
   },
   badRequest: {
     code: 400,
-    message: "BAD REQUEST",
+    message: "Bad Request",
   },
   forbidden: {
     code: 403,
-    message: "FORBIDDEN",
+    message: "Forbidden",
   },
   notFound: {
     code: 404,
-    message: "NOT FOUND",
+    message: "Not Found",
+  },
+  rangeNotSatisfiable: {
+    code: 416,
+    messsage: "Range Not Satisfiable",
   },
   internalServerError: {
     code: 500,

@@ -4,7 +4,7 @@ const { parserRequest } = require("./request")
 const { sendResponce } = require("./response")
 
 const port = 3030
-const socketTimeout = 10000
+const socketTimeout = 20000
 // ! \r\n\r\n header done - contnt-type, and length
 // ! handle POST
 // !   |->  handle chunked body info
@@ -32,19 +32,20 @@ server.on("connection", function (socket) {
   //   const request = parserRequest(data)
   //   sendResponce(socket, request)
   // })
-  let request
   socket.on("readable", () => {
     let data = ""
     while ((chunk = socket.read()) !== null) {
       data += chunk
     }
     if (!data) return false
-    console.log({ data: data.split("\r\n")[0] })
+    console.log({ data: data })
     request = parserRequest(data)
     sendResponce(socket, request)
   })
   socket.on("error", (err) => {
-    console.error(err)
+    console.error("socket error\n", err)
+    socket.end()
+    numberOfConnections()
   })
   socket.setTimeout(socketTimeout, () => {
     console.log("socket timeout!")

@@ -2,6 +2,7 @@ const net = require("net")
 
 const { parserRequest } = require("./request")
 const { sendResponce } = require("./response")
+const bodyParser = require("./body-parser")
 
 const port = 3030
 const socketTimeout = 20000
@@ -28,19 +29,33 @@ function numberOfConnections() {
 server.on("connection", function (socket) {
   console.log("client connected to the server")
 
-  // socket.on("data", (data) => {
-  //   const request = parserRequest(data)
-  //   sendResponce(socket, request)
-  // })
-  socket.on("readable", () => {
-    let data = ""
-    while ((chunk = socket.read()) !== null) {
-      data += chunk
+  let requestData = { head: "", body: "" }
+  let request = {}
+  let response = {}
+  function handleRequestData(data) {
+    const delimiter = "\r\n\r\n"
+    const delimiterIndex = data.indexOf(delimiter)
+    if (delimiterIndex !== -1) {
+      requestData.head = data.slice(0, delimiterIndex)
+      parserRequest(requestData.head, request)
+      requestData.body = data.slice(delimiterIndex + delimiter.length)
+      if (!requestData.body.length) {
+        sendResponce(socket, request)
+      }
+    } else if (
+      (contentLength = request.headers["content-length"]) &&
+      requestData.body.length < contentLength
+    ) {
+      requestData.body = Buffer.concat([requestData.body, data])
+      if (requestData.body.length >= contentLength) {
+        bodyParser(requestData.body, request, response)
+        sendResponce(socket, request, response)
+      }
     }
-    if (!data) return false
-    console.log({ data: data })
-    request = parserRequest(data)
-    sendResponce(socket, request)
+  }
+
+  socket.on("data", (data) => {
+    handleRequestData(data)
   })
   socket.on("error", (err) => {
     console.error("socket error\n", err)

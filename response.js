@@ -1,6 +1,7 @@
 const fs = require("fs")
-const status = require("./status")
 const path = require("path")
+
+const status = require("./status")
 const mime = require("mime")
 
 const staticFiles = (dirName) => (fileName) =>
@@ -39,7 +40,7 @@ function getHead(status, headers) {
   return getStatusLine(status) + getHeadersResponse(allHeaders)
 }
 
-function sendResponce(socket, request) {
+function sendResponce(socket, request, response) {
   const fileName = public(request.pathname.slice(1))
   if (!fs.existsSync(fileName)) {
     socket.end(getStatusLine(status.notFound))
@@ -72,7 +73,6 @@ function sendResponce(socket, request) {
         start: start,
         end: end,
       })
-      console.log(fileName, stats.size, end - start + 1)
       fileReadStream
         .pipe(socket)
         .on("end", () => {

@@ -49,11 +49,7 @@ function staticHandler(req, res, next) {
       fileReadStream
         .pipe(res.socket)
         .on("end", () => {
-          let isKeepAlive =
-            (conn = req.headers.connection) && conn == "keep-alive"
-              ? true
-              : false
-          isKeepAlive ? null : res.socket.end()
+          res.end()
         })
         .on("error", function (err) {
           console.log("error at file-read-stream\n", err)

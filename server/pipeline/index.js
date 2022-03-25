@@ -11,17 +11,14 @@ const eventEmitter = new events.EventEmitter()
 const pipeline = function (socket, request = {}, response = {}) {
   const pipes = []
   const _lastPipe = function (req, res) {
-    let isKeepAlive =
-      (conn = req.headers.connection) && conn == "keep-alive" ? true : false
     res.writeHead(404, { "Content-Type": "text/html" })
-    isKeepAlive ? socket.end() : null
-    fs.readFile(public("404.html"), "utf8", function (err, data) {
-      if (err) {
-        console.log("Error at reading 404.html\n", err)
-      } else {
-        socket.end(data)
-      }
-    })
+    // fs.readFile(public("404.html"), "utf8", function (err, data) {
+    //   if (err) {
+    //     console.log("Error at reading 404.html\n", err)
+    //   } else {
+    //     socket.write(data)
+    //   }
+    // })
   }
 
   request.socket = socket
@@ -51,8 +48,10 @@ const pipeline = function (socket, request = {}, response = {}) {
     socket.write(body)
   }
 
-  response.end = function (payload = null) {
-    socket.end(payload || "")
+  response.end = function () {
+    const isKeepAlive =
+      (conn = request.headers.connection) && conn == "keep-alive" ? true : false
+    isKeepAlive ? null : res.socket.end()
   }
 
   function next() {

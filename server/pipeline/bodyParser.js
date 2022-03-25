@@ -38,7 +38,7 @@ function bodyParser(req, res, next) {
     const fileName = `${year}-${month}-${date}-${Date.now()}.${extension}`
     fs.createWriteStream(`uploads/${fileName}`).write(req.data.body)
     res.uploadedFileName = fileName
-    res.status = status[201]
+    res.statusCode = 201
   }
   delete req.data.body
   next()

@@ -10,15 +10,16 @@ const eventEmitter = new events.EventEmitter()
 
 const pipeline = function (socket, request = {}, response = {}) {
   const pipes = []
-  const _lastPipe = function (req, res) {
+  let isEnd = false
+  const send404 = function (req, res) {
     res.writeHead(404, { "Content-Type": "text/html" })
-    // fs.readFile(public("404.html"), "utf8", function (err, data) {
-    //   if (err) {
-    //     console.log("Error at reading 404.html\n", err)
-    //   } else {
-    //     socket.write(data)
-    //   }
-    // })
+    fs.readFile(public("404.html"), "utf8", function (err, data) {
+      if (err) {
+        console.log("Error at reading 404.html\n", err)
+      } else {
+        socket.end(data)
+      }
+    })
   }
 
   request.socket = socket
@@ -41,6 +42,7 @@ const pipeline = function (socket, request = {}, response = {}) {
   }
 
   response.writeHead = function (statusCode, headers = {}) {
+    response.statusCode = statusCode
     socket.write(_getStatusLine(statusCode) + _getHeadersResponse(headers))
   }
 
@@ -49,10 +51,13 @@ const pipeline = function (socket, request = {}, response = {}) {
   }
 
   response.end = function () {
+    isEnd = true
     const isKeepAlive =
       (conn = request.headers.connection) && conn == "keep-alive" ? true : false
-    isKeepAlive ? null : res.socket.end()
+    isKeepAlive ? null : socket.end()
   }
+
+  response.send404 = () => send404(request, response)
 
   function next() {
     eventEmitter.emit("next")
@@ -69,8 +74,8 @@ const pipeline = function (socket, request = {}, response = {}) {
   eventEmitter.on("next", function () {
     if (request.data.head === "") return // ! fix the bug
     const { value: nextPipe, done } = pipeIterator.next()
-    if (!done) nextPipe(request, response, next)
-    // else _lastPipe(request, response)
+    if (!done && !isEnd) nextPipe(request, response, next)
+    // else if(!isEnd) _lastPipe(request, response)
   })
 
   return {

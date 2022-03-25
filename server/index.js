@@ -54,13 +54,11 @@ server.on("connection", function (socket) {
       contentLength = getContentLength(data)
       request.data.body = data.slice(delimiterIndex + delimiter.length)
       if (!request.data.body.length) {
-        console.log("start1", request.data)
         newPipeline.start()
       }
     } else if (contentLength && request.data.body.length < contentLength) {
       request.data.body = Buffer.concat([request.data.body, data])
       if (request.data.body.length >= contentLength) {
-        console.log("start2", request.data)
         newPipeline.start()
       }
     }

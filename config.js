@@ -1,40 +1,50 @@
+const defaultHeaders = Object.freeze({
+  Server: "nws",
+  Date: new Date().toString().slice(0, 28),
+  "Accept-Ranges": "bytes",
+})
+
 const status = Object.freeze({
-  ok: {
+  200: {
     code: 200,
     message: "Ok",
   },
-  created: {
+  201: {
     code: 201,
     message: "Created",
   },
-  noContent: {
+  204: {
     code: 204,
     message: "No Content",
   },
-  partialContent: {
+  206: {
     code: 206,
     messsage: "Partial Content",
   },
-  badRequest: {
+  400: {
     code: 400,
     message: "Bad Request",
   },
-  forbidden: {
+  403: {
     code: 403,
     message: "Forbidden",
   },
-  notFound: {
+  404: {
     code: 404,
     message: "Not Found",
   },
-  rangeNotSatisfiable: {
+  416: {
     code: 416,
     messsage: "Range Not Satisfiable",
   },
-  internalServerError: {
+  500: {
     code: 500,
     message: "Internal Server Error",
   },
 })
 
-module.exports = status
+module.exports = {
+  defaultHeaders,
+  status,
+  public_folder: "public",
+}

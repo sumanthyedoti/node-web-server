@@ -2,7 +2,7 @@ const fs = require("fs")
 const mime = require("mime")
 
 const { parseQuery } = require("./utils")
-const status = require("./status")
+const { status } = require("./config")
 
 const contentTypes = {
   json: "application/json",
@@ -27,7 +27,7 @@ function bodyParser(data, request, response) {
     const fileName = `${Date.now()}.${extension}`
     fs.createWriteStream(`uploads/${fileName}`).write(data)
     response.uploadedFileName = fileName
-    response.status = status.created
+    response.status = status["201"]
   }
   request.isQueryParsed = true
 }

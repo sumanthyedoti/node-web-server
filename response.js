@@ -1,7 +1,7 @@
 const fs = require("fs")
 const path = require("path")
 
-const status = require("./status")
+const { status } = require("./config")
 const mime = require("mime")
 
 const staticFiles = (dirName) => (fileName) =>
@@ -43,7 +43,7 @@ function getHead(status, headers) {
 function sendResponce(socket, request, response) {
   const fileName = public(request.pathname.slice(1))
   if (!fs.existsSync(fileName)) {
-    socket.end(getStatusLine(status.notFound))
+    socket.end(getStatusLine(status["404"]))
     return false
   }
   const fileExtention = fileName.split(".").slice(-1)[0]
@@ -67,7 +67,7 @@ function sendResponce(socket, request, response) {
         })
       }
       socket.write(
-        getHead(isRange ? status.partialContent : status.ok, headers)
+        getHead(isRange ? status.partialContent : status["200"], headers)
       )
       var fileReadStream = fs.createReadStream(fileName, {
         start: start,
@@ -90,6 +90,4 @@ function sendResponce(socket, request, response) {
   })
 }
 
-module.exports = {
-  sendResponce,
-}
+module.exports = sendResponce

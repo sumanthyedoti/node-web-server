@@ -1,6 +1,10 @@
+const fs = require("fs")
 const events = require("events")
 
-const { defaultHeaders, status } = require("../../config")
+const { defaultHeaders, status, public_folder } = require("../../config")
+const { staticFiles } = require("../../utils")
+
+const public = staticFiles(public_folder)
 
 const eventEmitter = new events.EventEmitter()
 
@@ -11,13 +15,13 @@ const pipeline = function (socket, request = {}, response = {}) {
       (conn = req.headers.connection) && conn == "keep-alive" ? true : false
     res.writeHead(404, { "Content-Type": "text/html" })
     isKeepAlive ? socket.end() : null
-    // fs.readFile(public("404.html"), "utf8", function (err, data) {
-    //   if (err) {
-    //     console.log("Error at reading 404.html\n", err)
-    //   } else {
-    //     console.log({ data })
-    //   }
-    // })
+    fs.readFile(public("404.html"), "utf8", function (err, data) {
+      if (err) {
+        console.log("Error at reading 404.html\n", err)
+      } else {
+        socket.end(data)
+      }
+    })
   }
 
   request.socket = socket
@@ -28,10 +32,14 @@ const pipeline = function (socket, request = {}, response = {}) {
   }
 
   function _getHeadersResponse(headers) {
-    const headersResponse = Object.keys({
+    const allHeaders = {
       ...defaultHeaders,
       ...headers,
-    }).reduce((acc, key) => acc + `${key}: ${headers[key]}\r\n`, "")
+    }
+    const headersResponse = Object.keys(allHeaders).reduce(
+      (acc, key) => acc + `${key}: ${allHeaders[key]}\r\n`,
+      ""
+    )
     return headersResponse + "\r\n"
   }
 

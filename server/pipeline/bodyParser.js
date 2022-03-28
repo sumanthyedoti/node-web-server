@@ -15,7 +15,7 @@ const SIZE_LIMIT = 100000000
 function bodyParser(req, res, next) {
   const contentType = req.headers["content-type"]
   if (!req.headers["content-length"] || !contentType || !req.data.body) {
-    delete req.data.body
+    delete req.buffer.body
     next()
     return false
   }
@@ -26,9 +26,9 @@ function bodyParser(req, res, next) {
     return false
   }
   if (contentType === contentTypes.json) {
-    req.body = JSON.parse(req.data.body.toString())
+    req.body = JSON.parse(req.buffer.body.toString())
   } else if (contentType === contentTypes.formURLEncoded) {
-    req.body = parseQuery(req.data.body.toString())
+    req.body = parseQuery(req.buffer.body.toString())
   } else if (contentType === contentTypes.multipartForm) {
   } else {
     const extension = mime.getExtension(contentType)
@@ -36,11 +36,11 @@ function bodyParser(req, res, next) {
     const month = (new Date().getMonth() + 1).toString().padStart(2, "0")
     const date = new Date().getDate().toString().padStart(2, "0")
     const fileName = `${year}-${month}-${date}-${Date.now()}.${extension}`
-    fs.createWriteStream(`uploads/${fileName}`).write(req.data.body)
+    fs.createWriteStream(`uploads/${fileName}`).write(req.buffer.body)
     res.uploadedFileName = fileName
     res.statusCode = 201
   }
-  delete req.data.body
+  delete req.buffer.body
   next()
 }
 

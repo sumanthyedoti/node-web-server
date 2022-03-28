@@ -1,14 +1,20 @@
 const fs = require("fs")
 const events = require("events")
 
-const { defaultHeaders, status, public_folder } = require("../../config")
+const {
+  defaultHeaders,
+  statusMessages,
+  public_folder,
+} = require("../../config")
 const { staticFiles } = require("../../utils")
 
 const public = staticFiles(public_folder)
 
 const eventEmitter = new events.EventEmitter()
 
-const pipeline = function (socket, request = {}, response = {}) {
+const pipeline = function (socket) {
+  const request = { buffer: { head: "", body: "" } }
+  const response = { socket }
   const pipes = []
   let isEnd = false
   const send404 = function (req, res) {
@@ -22,11 +28,8 @@ const pipeline = function (socket, request = {}, response = {}) {
     })
   }
 
-  request.socket = socket
-  response.socket = socket
-
   function _getStatusLine(code, httpv = "HTTP/1.1") {
-    return `${httpv} ${code} ${status[code].message}\r\n`
+    return `${httpv} ${code} ${statusMessages[code]}\r\n`
   }
 
   function _getHeadersResponse(headers) {
@@ -72,22 +75,28 @@ const pipeline = function (socket, request = {}, response = {}) {
   const pipeIterator = pipeGenerator()
 
   eventEmitter.on("next", function () {
-    if (request.data.head === "") return // ! fix the bug
+    if (request.buffer.head === "") return // ! fix the bug
     const { value: nextPipe, done } = pipeIterator.next()
+    if (!nextPipe) return
     if (!done && !isEnd) nextPipe(request, response, next)
     // else if(!isEnd) _lastPipe(request, response)
   })
 
   return {
-    through: function (middlewear) {
-      pipes.push(middlewear)
+    request,
+    response,
+    addPipes: function (pipeList) {
+      pipes.push(...pipeList)
       return this
+    },
+    addHeadBuffer: function (head) {
+      request.buffer.head = head
+    },
+    addBodyBuffer: function (body) {
+      request.buffer.body = body
     },
     start: function () {
       eventEmitter.emit("next")
-    },
-    getPipes: function () {
-      return pipes
     },
   }
 }

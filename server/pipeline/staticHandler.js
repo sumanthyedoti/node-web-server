@@ -31,19 +31,16 @@ function staticHandler(req, res, next) {
         const [start, end = stats.size - 1] = isRange
           ? getRangeBytes(req.headers.range)
           : [0, stats.size - 1]
-        let headers = {}
-        headers = {
+        // ! do const
+        const headers = {
           "Content-Type": mime.getType(fileExtention),
           "Content-Length": end - start + 1,
         }
         if (isRange) {
-          headers = {
-            ...headers,
-            "Content-Range": `bytes ${start}-${end}/${stats.size}`,
-          }
+          headers["Content-Range"] = `bytes ${start}-${end}/${stats.size}`
         }
         res.writeHead(isRange ? 206 : 200, headers)
-        var fileReadStream = fs.createReadStream(fileName, {
+        const fileReadStream = fs.createReadStream(fileName, {
           start: start,
           end: end,
         })

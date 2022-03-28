@@ -1,11 +1,7 @@
 const net = require("net")
 
-const requestParser = require("./pipeline/requestParser")
-const bodyParser = require("./pipeline/bodyParser")
-const staticHandler = require("./pipeline/staticHandler")
 const pipeline = require("./pipeline")
 
-const port = 3030
 const socketTimeout = 20000
 
 const server = net.createServer()
@@ -35,54 +31,71 @@ function getContentLength(data) {
   )
 }
 
-server.on("connection", function (socket) {
-  console.log("client connected to the server")
+const pipes = []
 
-  let request = { data: { head: "", body: "" } }
-  let response = {}
-  let contentLength = null
-  const newPipeline = pipeline(socket, request, response)
-    .through(requestParser)
-    .through(bodyParser)
-    .through(staticHandler)
+function start() {
+  server.on("connection", function (socket) {
+    console.log("client connected to the server")
 
-  function handleRequestData(data) {
-    const delimiter = "\r\n\r\n"
-    const delimiterIndex = data.indexOf(delimiter)
-    if (delimiterIndex !== -1) {
-      request.data.head = data.slice(0, delimiterIndex)
-      contentLength = getContentLength(data)
-      request.data.body = data.slice(delimiterIndex + delimiter.length)
-      if (!request.data.body.length) {
-        newPipeline.start()
-      }
-    } else if (contentLength && request.data.body.length < contentLength) {
-      request.data.body = Buffer.concat([request.data.body, data])
-      if (request.data.body.length >= contentLength) {
-        newPipeline.start()
+    let contentLength = null
+    const newPipeline = pipeline(socket).addPipes(pipes)
+
+    function handleRequestData(chunk) {
+      const delimiter = "\r\n\r\n"
+      const delimiterIndex = chunk.indexOf(delimiter)
+      if (delimiterIndex !== -1) {
+        newPipeline.addHeadBuffer(chunk.slice(0, delimiterIndex))
+        contentLength = getContentLength(chunk)
+        newPipeline.addBodyBuffer(
+          chunk.slice(delimiterIndex + delimiter.length)
+        )
+        if (!newPipeline.request.buffer.body.length) {
+          // console.log("s1", newPipeline.request.buffer)
+          newPipeline.start()
+        }
+      } else if (contentLength && request.buffer.body.length < contentLength) {
+        newPipeline.addBodyBuffer(
+          Buffer.concat([newPipeline.buffer.body, data])
+        )
+        if (newPipeline.buffer.body.length >= contentLength) {
+          // console.log("s2", newPipeline.request.buffer)
+          newPipeline.start()
+        }
       }
     }
-  }
 
-  socket.on("data", (data) => {
-    handleRequestData(data)
+    socket.on("data", (chunk) => {
+      handleRequestData(chunk)
+    })
+    socket.on("error", (err) => {
+      console.error("socket error\n", err)
+      socket.end()
+      numberOfConnections()
+    })
+    socket.setTimeout(socketTimeout, () => {
+      console.log("socket timeout!")
+      socket.end()
+      numberOfConnections()
+    })
+    socket.on("end", () => {
+      console.log("client connected ended!")
+      numberOfConnections()
+    })
   })
-  socket.on("error", (err) => {
-    console.error("socket error\n", err)
-    socket.end()
-    numberOfConnections()
-  })
-  socket.setTimeout(socketTimeout, () => {
-    console.log("socket timeout!")
-    socket.end()
-    numberOfConnections()
-  })
-  socket.on("end", () => {
-    console.log("client connected ended!")
-    numberOfConnections()
-  })
-})
+}
 
-server.listen(port, function () {
-  console.log(`Server listening to ${port}`)
-})
+function listen(port) {
+  server.listen(port, function () {
+    console.log(`Server listening to ${port}`)
+  })
+}
+
+module.exports = {
+  listen,
+  start,
+  passThrough: function (pipe) {
+    console.log("adding pipe", pipe)
+    pipes.push(pipe)
+    return this
+  },
+}

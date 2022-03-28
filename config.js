@@ -4,47 +4,20 @@ const defaultHeaders = Object.freeze({
   "Accept-Ranges": "bytes",
 })
 
-const status = Object.freeze({
-  200: {
-    code: 200,
-    message: "Ok",
-  },
-  201: {
-    code: 201,
-    message: "Created",
-  },
-  204: {
-    code: 204,
-    message: "No Content",
-  },
-  206: {
-    code: 206,
-    messsage: "Partial Content",
-  },
-  400: {
-    code: 400,
-    message: "Bad Request",
-  },
-  403: {
-    code: 403,
-    message: "Forbidden",
-  },
-  404: {
-    code: 404,
-    message: "Not Found",
-  },
-  416: {
-    code: 416,
-    messsage: "Range Not Satisfiable",
-  },
-  500: {
-    code: 500,
-    message: "Internal Server Error",
-  },
+const statusMessages = Object.freeze({
+  200: "Ok",
+  201: "Created",
+  204: "No Content",
+  206: "Partial Content",
+  400: "Bad Request",
+  403: "Forbidden",
+  404: "Not Found",
+  416: "Range Not Satisfiable",
+  500: "Internal Server Error",
 })
 
 module.exports = {
   defaultHeaders,
-  status,
+  statusMessages,
   public_folder: "public",
 }

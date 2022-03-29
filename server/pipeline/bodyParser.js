@@ -2,7 +2,6 @@ const fs = require("fs")
 const mime = require("mime")
 
 const { parseQuery } = require("../../utils")
-const { status } = require("../../config")
 
 const contentTypes = {
   json: "application/json",
@@ -10,17 +9,17 @@ const contentTypes = {
   multipartForm: "multipart/form-data",
 }
 
-const SIZE_LIMIT = 100000000
+const FILE_SIZE_LIMIT = 100000000
 
 function bodyParser(req, res, next) {
   const contentType = req.headers["content-type"]
-  if (!req.headers["content-length"] || !contentType || !req.data.body) {
+  if (!req.headers["content-length"] || !contentType || !req.buffer.body) {
     delete req.buffer.body
     next()
     return false
   }
   const size = parseInt(req.headers["content-length"])
-  if (size > SIZE_LIMIT) {
+  if (size > FILE_SIZE_LIMIT) {
     res.writeHead(400)
     res.end()
     return false

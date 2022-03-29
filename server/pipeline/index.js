@@ -58,7 +58,7 @@ const pipeline = function (socket) {
   }
 
   response.send = function (body) {
-    socket.write(body)
+    socket.write(body || "")
     response.end()
   }
 
@@ -71,6 +71,7 @@ const pipeline = function (socket) {
   response.send404 = () => _send404(request, response)
 
   function next() {
+    // console.log("next")
     eventEmitter.emit("next")
   }
 
@@ -83,6 +84,7 @@ const pipeline = function (socket) {
   const pipeIterator = pipeGenerator()
 
   eventEmitter.on("next", function () {
+    // console.log("one next")
     if (request.buffer.head === "") return false
     const { value: nextPipe, done } = pipeIterator.next()
     if (!done && !isEnd) nextPipe(request, response, next)

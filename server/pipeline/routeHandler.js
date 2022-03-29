@@ -1,16 +1,40 @@
 const routes = { GET: {}, POST: {}, PUT: {}, DELETE: {} }
 
-function routeHandler(req, res, next) {
+function matchRoute(req) {
   const method = req.method
-  const route = req.pathname
+  const pathname = req.pathname
+  let matchingRoute = null
+  const params = {}
+  Object.keys(routes[method]).forEach((route) => {
+    if (matchingRoute) return
+    if (route === pathname) matchingRoute = route
+    const routeFrags = route.split("/").filter((fragment) => !!fragment)
+    const pathFrags = pathname.split("/").filter((fragment) => !!fragment)
+    if (routeFrags.length !== pathFrags.length) return
+    let isMatchingRoute = true
+    routeFrags.forEach((routeFrag, i) => {
+      if (routeFrag[0] === ":") {
+        params[routeFrag.slice(1)] = pathFrags[i]
+        return
+      }
+      if (routeFrag !== pathFrags[i]) isMatchingRoute = false
+    })
+    if (isMatchingRoute) {
+      req["params"] = params
+      matchingRoute = route
+    }
+  })
+  return matchingRoute
+}
 
-  if (!routes[method][route]) {
+function routeHandler(req, res, next) {
+  const matchingRoute = matchRoute(req)
+  if (!matchingRoute) {
     next()
     return false
   }
 
-  console.log({ method }, { route })
-  routes[method][route](req, res, next)
+  routes[req.method][matchingRoute](req, res, next)
   next()
 }
 

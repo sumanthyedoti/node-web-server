@@ -52,6 +52,12 @@ function start() {
         if (!newPipeline.request.buffer.body.length) {
           // console.log("s1", newPipeline.request.buffer)
           newPipeline.start()
+        } else if (
+          contentLength &&
+          newPipeline.request.buffer.body.length === contentLength
+        ) {
+          // console.log("s2", newPipeline.request.buffer)
+          newPipeline.start()
         }
       } else if (
         contentLength &&
@@ -61,7 +67,7 @@ function start() {
           Buffer.concat([newPipeline.buffer.body, data])
         )
         if (newPipeline.buffer.body.length >= contentLength) {
-          // console.log("s2", newPipeline.request.buffer)
+          // console.log("s3", newPipeline.request.buffer)
           newPipeline.start()
         }
       }

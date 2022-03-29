@@ -1,5 +1,6 @@
 body {
   color: tomato;
+  overflow: hidden;
 }
 .ketchup-bg {
   background-color: tomato;
@@ -44,12 +45,21 @@ button.opener {
   --neck-size: 26px;
   --cap-color: #ffb836;
   --cap-duration: 8s;
-  --bottle-rotate-duration: 10s;
+  --bottle-rotate-duration: 2s;
   position: relative;
   width: var(--width);
   height: 100px;
-  margin: 3rem auto;
+  margin: 4rem auto;
+}
+.rotate-bottle {
   animation: rotate-bottle var(--bottle-rotate-duration) 2s ease-in-out forwards;
+  transform-origin: 50% 20%;
+}
+.bottle-wrapper {
+  transform: translateY(0rem);
+}
+.shake-bottle {
+  animation: shake-bottle 6s 5s ease-in-out forwards;
 }
 .bottle__bottom {
   position: absolute;
@@ -62,21 +72,22 @@ button.opener {
 .bottle__top {
   --neck-offset: calc((var(--width) - var(--neck-size)) / 2);
   position: absolute;
+  z-index: 0;
   width: var(--width);
   height: 0;
   border-bottom: var(--width) solid tomato;
   border-left: var(--neck-offset) solid transparent;
   border-right: var(--neck-offset) solid transparent;
-  top: calc(var(--width) * -1);
+  top: calc(var(--width) * -0.99);
 }
 .bottle__mouth {
   --height: calc(var(--neck-size) * 0.5);
   position: absolute;
   width: var(--neck-size);
   height: var(--height);
-  top: calc(var(--height) * -1);
+  top: calc(var(--height) * -0.9);
   background-color: tomato;
-  box-shadow: inset 0 8px 6px rgba(200, 200, 200, 0.8);
+  box-shadow: inset 0 2px 2px rgba(200, 200, 200, 0.8);
 }
 .bottle__cap {
   --cap-offset: 4px;
@@ -84,24 +95,19 @@ button.opener {
   --height: calc(var(--neck-size) * 0.7);
   left: calc(var(--cap-offset) * -1);
   position: absolute;
+  z-index: 1;
   width: var(--cap-width);
   height: var(--height);
   top: calc(var(--height) * -1);
   background-color: var(--cap-color);
   border-radius: 2px;
-  animation: rotate-cap var(--cap-duration) 0.5s ease-out forwards;
 }
-.cap__wrapper {
-  animation: move-cap 2s 0.5s ease-out forwards;
+.rotate-cap {
+  z-index: 1;
+  animation: rotate-cap var(--cap-duration) ease-out forwards;
 }
-
-@keyframes rotate-bottle {
-  0% {
-    transform: rotate(0deg);
-  }
-  10% {
-    transform: rotate(200deg);
-  }
+.move-cap {
+  animation: move-cap 2s ease-out forwards;
 }
 
 @keyframes rotate-cap {
@@ -117,5 +123,67 @@ button.opener {
   }
   100% {
     transform: translate(4rem, -60rem);
+  }
+}
+
+@keyframes rotate-bottle {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(200deg);
+  }
+}
+
+@keyframes shake-bottle {
+  6% {
+    transform: translateY(-2rem);
+  }
+  9% {
+    transform: translateY(0rem);
+  }
+  12% {
+    transform: translateY(-2rem);
+  }
+  15% {
+    transform: translateY(0rem);
+  }
+
+  37% {
+    transform: translateY(0rem);
+  }
+  40% {
+    transform: translateY(-2rem);
+  }
+  43% {
+    transform: translateY(0rem);
+  }
+  46% {
+    transform: translateY(-2rem);
+  }
+  49% {
+    transform: translateY(0rem);
+  }
+
+  70% {
+    transform: translateY(0rem);
+  }
+  85% {
+    transform: translateY(-4rem);
+  }
+  88% {
+    transform: translateY(0rem);
+  }
+  91% {
+    transform: translateY(-4rem);
+  }
+  94% {
+    transform: translateY(0rem);
+  }
+  97% {
+    transform: translateY(-4rem);
+  }
+  100% {
+    transform: translateY(0rem);
   }
 }

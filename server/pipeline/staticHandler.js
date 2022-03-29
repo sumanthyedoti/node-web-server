@@ -19,8 +19,8 @@ function staticHandler(req, res, next) {
   const fileExtention = fileName.split(".").slice(-1)[0]
   fs.exists(fileName, (isExists) => {
     if (!isExists) {
-      res.send404() // ! dont end the pipelines
-      // next()
+      // res.send404() // ! dont end the pipelines
+      next()
       return false
     }
     fs.stat(fileName, (err, stats) => {
@@ -51,7 +51,6 @@ function staticHandler(req, res, next) {
           })
           .on("error", function (err) {
             console.log("error at file-read-stream\n", err)
-            next()
           })
       }
     })

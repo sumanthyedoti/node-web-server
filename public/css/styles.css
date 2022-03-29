@@ -22,19 +22,34 @@ button.opener {
   font-weight: bold;
 }
 
-.danger-note {
-  padding-top: 1em;
+.note {
+  padding-top: 2rem;
+  animation: note 1.3s ease-out infinite;
+}
+@keyframes note {
+  from {
+    transform: scale(1.1);
+  }
+  50% {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.1);
+  }
 }
 
 .bottle {
-  --width: 50px;
+  --width: 60px;
   --radius: 4px;
-  --neck-size: 20px;
+  --neck-size: 26px;
   --cap-color: #ffb836;
+  --cap-duration: 8s;
+  --bottle-rotate-duration: 10s;
   position: relative;
   width: var(--width);
   height: 100px;
-  margin: auto;
+  margin: 3rem auto;
+  animation: rotate-bottle var(--bottle-rotate-duration) 2s ease-in-out forwards;
 }
 .bottle__bottom {
   position: absolute;
@@ -54,16 +69,53 @@ button.opener {
   border-right: var(--neck-offset) solid transparent;
   top: calc(var(--width) * -1);
 }
-
+.bottle__mouth {
+  --height: calc(var(--neck-size) * 0.5);
+  position: absolute;
+  width: var(--neck-size);
+  height: var(--height);
+  top: calc(var(--height) * -1);
+  background-color: tomato;
+  box-shadow: inset 0 8px 6px rgba(200, 200, 200, 0.8);
+}
 .bottle__cap {
   --cap-offset: 4px;
   --cap-width: calc(var(--neck-size) + var(--cap-offset) * 2);
+  --height: calc(var(--neck-size) * 0.7);
   left: calc(var(--cap-offset) * -1);
   position: absolute;
-  --height: calc(var(--neck-size) * 0.7);
   width: var(--cap-width);
   height: var(--height);
   top: calc(var(--height) * -1);
   background-color: var(--cap-color);
   border-radius: 2px;
+  animation: rotate-cap var(--cap-duration) 0.5s ease-out forwards;
+}
+.cap__wrapper {
+  animation: move-cap 2s 0.5s ease-out forwards;
+}
+
+@keyframes rotate-bottle {
+  0% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(200deg);
+  }
+}
+
+@keyframes rotate-cap {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(2000deg);
+  }
+}
+@keyframes move-cap {
+  0% {
+  }
+  100% {
+    transform: translate(4rem, -60rem);
+  }
 }

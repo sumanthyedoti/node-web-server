@@ -53,7 +53,10 @@ function start() {
           // console.log("s1", newPipeline.request.buffer)
           newPipeline.start()
         }
-      } else if (contentLength && request.buffer.body.length < contentLength) {
+      } else if (
+        contentLength &&
+        newPipeline.request.buffer.body.length < contentLength
+      ) {
         newPipeline.addBodyBuffer(
           Buffer.concat([newPipeline.buffer.body, data])
         )
@@ -94,7 +97,6 @@ module.exports = {
   listen,
   start,
   passThrough: function (pipe) {
-    console.log("adding pipe", pipe)
     pipes.push(pipe)
     return this
   },

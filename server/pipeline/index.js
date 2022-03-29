@@ -17,16 +17,6 @@ const pipeline = function (socket) {
   const response = { socket }
   const pipes = []
   let isEnd = false
-  const send404 = function (req, res) {
-    res.writeHead(404, { "Content-Type": "text/html" })
-    fs.readFile(public("404.html"), "utf8", function (err, data) {
-      if (err) {
-        console.log("Error at reading 404.html\n", err)
-      } else {
-        socket.end(data)
-      }
-    })
-  }
 
   function _getStatusLine(code, httpv = "HTTP/1.1") {
     return `${httpv} ${code} ${statusMessages[code]}\r\n`
@@ -44,6 +34,24 @@ const pipeline = function (socket) {
     return headersResponse + "\r\n"
   }
 
+  function _isKeepAlive() {
+    return (conn = request.headers.connection) && conn == "keep-alive"
+      ? true
+      : false
+  }
+
+  function _send404(req, res) {
+    console.log("sending 404")
+    res.writeHead(404, { "Content-Type": "text/html" })
+    fs.readFile(public("404.html"), "utf8", function (err, data) {
+      if (err) {
+        console.log("Error at reading 404.html\n", err)
+      } else {
+        socket.end(data)
+      }
+    })
+  }
+
   response.writeHead = function (statusCode, headers = {}) {
     response.statusCode = statusCode
     socket.write(_getStatusLine(statusCode) + _getHeadersResponse(headers))
@@ -51,16 +59,16 @@ const pipeline = function (socket) {
 
   response.send = function (body) {
     socket.write(body)
+    response.end()
   }
 
   response.end = function () {
     isEnd = true
-    const isKeepAlive =
-      (conn = request.headers.connection) && conn == "keep-alive" ? true : false
-    isKeepAlive ? null : socket.end()
+    // _isKeepAlive() ? null : socket.end()
+    socket.end()
   }
 
-  response.send404 = () => send404(request, response)
+  response.send404 = () => _send404(request, response)
 
   function next() {
     eventEmitter.emit("next")
@@ -75,11 +83,9 @@ const pipeline = function (socket) {
   const pipeIterator = pipeGenerator()
 
   eventEmitter.on("next", function () {
-    if (request.buffer.head === "") return // ! fix the bug
+    if (request.buffer.head === "") return false
     const { value: nextPipe, done } = pipeIterator.next()
-    if (!nextPipe) return
     if (!done && !isEnd) nextPipe(request, response, next)
-    // else if(!isEnd) _lastPipe(request, response)
   })
 
   return {
@@ -96,7 +102,7 @@ const pipeline = function (socket) {
       request.buffer.body = body
     },
     start: function () {
-      eventEmitter.emit("next")
+      next()
     },
   }
 }

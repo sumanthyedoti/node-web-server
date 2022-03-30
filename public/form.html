@@ -10,13 +10,24 @@
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
     <link rel="stylesheet" href="./css/base.css">
+    <style>
+
+      form {
+        display: flex;
+        flex-direction: column;
+        width: 30%;
+        margin: auto;
+        margin-top: 40px;
+      }
+      form * {
+        margin-bottom: 20px;
+      }
+    </style>
   </head>
   <body>
-    <form action="/form" method="post">
-      <input type="text" name="name">
-      <input type="email" name="email">
-      <input type="password" name="password">
-      <input type="range" name="range" id="range" value="">
+    <form action="/success.html" method="post">
+      <input type="text" name="name" placeholder="name">
+      <input type="email" name="email" placeholder="email">
       <input type="submit" id="submit" value="Submit">
     </form>
   </body>

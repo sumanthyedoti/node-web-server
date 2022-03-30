@@ -28,7 +28,6 @@ function bodyParser(req, res, next) {
     req.body = JSON.parse(req.buffer.body.toString())
   } else if (contentType === contentTypes.formURLEncoded) {
     req.body = parseQuery(req.buffer.body.toString())
-  } else if (contentType === contentTypes.multipartForm) {
   } else {
     const extension = mime.getExtension(contentType)
     const year = new Date().getFullYear()

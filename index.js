@@ -1,5 +1,6 @@
 const app = require("./server")
 const requestParser = require("./server/pipeline/requestParser")
+const cookieParser = require("./server/pipeline/cookieParser")
 const bodyParser = require("./server/pipeline/bodyParser")
 const staticHandler = require("./server/pipeline/staticHandler")
 const { router, routeHandler } = require("./server/pipeline/routeHandler")
@@ -16,6 +17,7 @@ const port = 3030
 
 app
   .passThrough(requestParser)
+  .passThrough(cookieParser)
   .passThrough(bodyParser)
   .passThrough(staticHandler)
   .passThrough(routeHandler)

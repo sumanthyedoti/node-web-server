@@ -24,9 +24,10 @@ function getTodo(req, res) {
 }
 
 function postTodo(req, res) {
-  const id = Date.now()
+  const id = Object.keys(todos).length + 1
   const todo = {
     id,
+    completed: false,
     ...req.body,
   }
   todos[id] = todo

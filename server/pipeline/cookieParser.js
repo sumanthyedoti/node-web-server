@@ -1,4 +1,8 @@
 function cookieParser(req, res, next) {
+  if (!req.headers.cookie) {
+    next()
+    return
+  }
   const cookies = req.headers.cookie
     .split("; ")
     .map((cookie) => cookie.split("="))

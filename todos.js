@@ -1,5 +1,5 @@
 const sampleTodo = {
-  id: Date.now(),
+  id: 1,
   completed: false,
   text: "This a sample todo, please ignore or delete it!",
 }

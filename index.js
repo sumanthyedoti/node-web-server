@@ -11,6 +11,7 @@ const {
   postTodo,
   updateTodo,
   deleteTodo,
+  uploadFile,
 } = require("./controllers")
 
 const port = 3030
@@ -28,5 +29,7 @@ router.get("/todos/:id", getTodo)
 router.post("/todos", postTodo)
 router.put("/todos/:id", updateTodo)
 router.delete("/todos/:id", deleteTodo)
+
+router.post("/upload", uploadFile)
 
 app.listen(port)

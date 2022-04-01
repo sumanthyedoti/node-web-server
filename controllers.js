@@ -63,10 +63,26 @@ function deleteTodo(req, res) {
   }
 }
 
+function uploadFile(req, res) {
+  if (!res.uploadedFileName) {
+    res.writeHead(400)
+  } else {
+    res.writeHead(200, {
+      "Content-Type": mime.getType("json"),
+    })
+    res.send(
+      JSON.stringify({
+        message: "Uploaded the file successfully!",
+      })
+    )
+  }
+}
+
 module.exports = {
   getTodos,
   getTodo,
   postTodo,
   updateTodo,
   deleteTodo,
+  uploadFile,
 }

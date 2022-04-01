@@ -29,6 +29,7 @@ function matchRoute(req) {
 
 function routeHandler(req, res, next) {
   const matchingRoute = matchRoute(req)
+  console.log({ matchingRoute })
   if (!matchingRoute) {
     next()
     return false

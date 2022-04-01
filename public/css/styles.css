@@ -17,15 +17,30 @@ body {
   padding: 5rem 0;
 }
 
+.samosa-and-button {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  justify-content: center;
+  padding-left: 2rem;
+}
+.samosa-and-button img {
+  width: 6rem;
+  height: 4rem;
+  object-fit: contain;
+}
+
 button.opener {
   background-color: tomato;
   color: whitesmoke;
   font-weight: bold;
+  font-size: 1rem;
+  margin-bottom: -1rem;
 }
 
 .note {
-  padding-top: 2rem;
-  animation: note 1.3s ease-out infinite;
+  padding-top: 6rem;
+  animation: note 1.3s ease-in infinite;
 }
 @keyframes note {
   from {

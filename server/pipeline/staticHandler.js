@@ -15,6 +15,10 @@ let getRangeBytes = (range) => {
 }
 
 function staticHandler(req, res, next) {
+  if (req.method !== "GET") {
+    next()
+    return
+  }
   const fileName = public(req.pathname.slice(1))
   const fileExtention = fileName.split(".").slice(-1)[0]
   fs.exists(fileName, (isExists) => {

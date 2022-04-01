@@ -50,13 +50,11 @@ function start() {
           chunk.slice(delimiterIndex + delimiter.length)
         )
         if (!newPipeline.request.buffer.body.length) {
-          // console.log("s1", newPipeline.request.buffer)
           newPipeline.start()
         } else if (
           contentLength &&
           newPipeline.request.buffer.body.length === contentLength
         ) {
-          // console.log("s2", newPipeline.request.buffer)
           newPipeline.start()
         }
       } else if (
@@ -64,10 +62,9 @@ function start() {
         newPipeline.request.buffer.body.length < contentLength
       ) {
         newPipeline.addBodyBuffer(
-          Buffer.concat([newPipeline.buffer.body, data])
+          Buffer.concat([newPipeline.request.buffer.body, chunk])
         )
-        if (newPipeline.buffer.body.length >= contentLength) {
-          // console.log("s3", newPipeline.request.buffer)
+        if (newPipeline.request.buffer.body.length >= contentLength) {
           newPipeline.start()
         }
       }

@@ -11,8 +11,7 @@ const handleOpen = () => {
   bottle.classList.add("rotate-bottle")
   bottleWrapper.classList.add("shake-bottle")
   setTimeout(() => {
-    openButton.classList.add("hide")
-    bottle.classList.add("hide")
+    body.innerHTML = ""
     body.classList.add("ketchup-bg")
   }, 11000)
 }
